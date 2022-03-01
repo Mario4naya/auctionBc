@@ -48,7 +48,7 @@ router.post('/login',async(req,res)=>{
                 expiresIn: 6000 * 6000
             }
         )
-        res.send({user:user.email,token});
+        res.send({userEmail:user.email,token});
 
     }else{
         res.status(400).send('User or password is wrong');

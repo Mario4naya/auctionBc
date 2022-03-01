@@ -13,6 +13,7 @@ function authJwt(){
             path:[
                 {url: /\/public\/uploads(.*)/ ,methods:['GET','OPTIONS']},
                 {url: /\/subasta\/api\/users(.*)/ ,methods:['GET','OPTIONS']},
+                {url: /\/subasta\/api\/categories(.*)/ ,methods:['GET','OPTIONS']},
                 `${api}/users/login`,
                 `${api}/users/register`
             ]
@@ -22,9 +23,10 @@ function authJwt(){
 
 
 async function isRevoked(req,payload,done){
-    if(!payload.isAdmin){
-        return done(null,true);
-    }
+    // if(!payload.isAdmin){
+    //     return done(null,true);
+    // }
+    // not working like i expected, it revoke  all user actions and i dont want that behavior
     done();
 }
 

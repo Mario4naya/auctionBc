@@ -5,11 +5,14 @@ const morgan = require('morgan');
 const cors = require('cors');
 const authJwt = require('./helpers/jwt');
 const errorHandler = require('./helpers/errorHandler');
+const process = require('process')
 require('dotenv/config');
 
 
 //uses
 const userRouter = require('./routers/user');
+const categoryRouter = require('./routers/category');
+const e = require('express');
 
 
 
@@ -26,9 +29,19 @@ app.use(authJwt());
 app.use(errorHandler);
 app.use('/public/uploads',express.static(__dirname + '/public/uploads'))
 
+app.use(function (err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error.ejs', {
+        message: err.message,
+        error: err
+    });
+});
 
 //routes
 app.use(`${api}/users`,userRouter)
+app.use(`${api}/categories`,categoryRouter)
+
+
 
 app.get('/',(req,res)=>{
     res.send('hello api');
