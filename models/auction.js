@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const auctionSchema = mongoose.Schema({
     code:{
         type: String,
-        required: true,
+        
         unique: true
     },
     product_name:{
@@ -20,8 +20,7 @@ const auctionSchema = mongoose.Schema({
     },
     startDate:{
         type: Date,
-        default:Date.now,
-        required: true
+        default:Date.now,        
     },
     endDate :{
         type: Date,
@@ -29,21 +28,21 @@ const auctionSchema = mongoose.Schema({
     },    
     description :{
         type: String,
-        required: true
+        
     },
     profileImage :{
         type: String,
         default: '',
-        required: true
+        
     },
     images:[{
         type: String
     }]
     ,
     endPrice :{
-        type:mongoose.Types.Decimal128,
-        required: true
+        type:mongoose.Types.Decimal128,        
     },
+
     user :{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

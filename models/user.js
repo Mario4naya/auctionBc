@@ -22,23 +22,23 @@ const userSchema = mongoose.Schema({
     },
     phoneNumber:{
         type:String,
-        required: true
+        
     },
     address:{
         type: String,
-        required:true
+        
     },
     city:{
         type: String,
-        required: true
+        
     },
     country:{
         type:String,
-        required: true
+        
     },
     nid:{
         type:String,
-        required:true
+        
     },
     status:{
         type:String
