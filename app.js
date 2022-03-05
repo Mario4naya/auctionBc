@@ -13,7 +13,7 @@ require('dotenv/config');
 const userRouter = require('./routers/user');
 const categoryRouter = require('./routers/category');
 const auctionRouter = require('./routers/auction');
-const e = require('express');
+const offerRouter = require('./routers/offer');
 
 
 
@@ -38,10 +38,11 @@ app.use(function (err, req, res, next) {
     });
 });
 
-//routes
+//routers
 app.use(`${api}/users`,userRouter)
 app.use(`${api}/categories`,categoryRouter)
 app.use(`${api}/auctions`,auctionRouter)
+app.use(`${api}/offers`,offerRouter)
 
 
 

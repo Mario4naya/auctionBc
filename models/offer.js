@@ -8,7 +8,7 @@ const offerSchema = mongoose.Schema({
         required:true
     },
     offerValue:{
-        type: mongoose.Types.Decimal128,
+        type: Number,
         required: true
     },
     offerDate:{
