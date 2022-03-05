@@ -38,7 +38,7 @@ router.post('/login',async(req,res)=>{
     const user = await User.findOne({email:req.body.email});
     if(user && bcrypt.compareSync(req.body.password,user.password)){
         
-        const token = jwt.sign(
+        let token = jwt.sign(
             {
                 userId:user.id,
                 isAdmin:user.isAdmin  
@@ -48,6 +48,8 @@ router.post('/login',async(req,res)=>{
                 expiresIn: 6000 * 6000
             }
         )
+        token = process.env.PREFIX_TOKEN + token
+
         res.send({userEmail:user.email,token});
 
     }else{
