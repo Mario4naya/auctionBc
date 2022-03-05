@@ -7,7 +7,7 @@ const auctionSchema = mongoose.Schema({
         required: true,
         unique: true
     },
-    name:{
+    product_name:{
         type: String,
         required: true
     },
@@ -26,12 +26,7 @@ const auctionSchema = mongoose.Schema({
     endDate :{
         type: Date,
         required: true
-    },
-    product :{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-        required:true
-    },
+    },    
     description :{
         type: String,
         required: true
