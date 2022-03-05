@@ -43,10 +43,15 @@ const auctionSchema = mongoose.Schema({
         type:mongoose.Types.Decimal128,        
     },
 
+    category :{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',                 
+    },
+
     user :{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required:true
+        required:true 
     }
 
 });
