@@ -12,6 +12,7 @@ require('dotenv/config');
 //uses
 const userRouter = require('./routers/user');
 const categoryRouter = require('./routers/category');
+const auctionRouter = require('./routers/auction');
 const e = require('express');
 
 
@@ -40,6 +41,7 @@ app.use(function (err, req, res, next) {
 //routes
 app.use(`${api}/users`,userRouter)
 app.use(`${api}/categories`,categoryRouter)
+app.use(`${api}/auctions`,auctionRouter)
 
 
 

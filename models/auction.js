@@ -34,15 +34,14 @@ const auctionSchema = mongoose.Schema({
     profileImage :{
         type: String,
         default: '',
-        required: true
+        required: false
     },
     images:[{
         type: String
     }]
     ,
     endPrice :{
-        type:mongoose.Types.Decimal128,
-        required: true
+        type:mongoose.Types.Decimal128,        
     },
     user :{
         type: mongoose.Schema.Types.ObjectId,

@@ -88,7 +88,7 @@ router.post('/register', async(req,res)=>{
     try{
         let user = new User({
             name: req.body.name,
-            username:req.body.email,
+            username:req.body.username,
             password:bcrypt.hashSync(req.body.password,10),
             phoneNumber: req.body.phoneNumber,
             address:req.body.address,
