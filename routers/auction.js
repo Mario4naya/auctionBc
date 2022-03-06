@@ -153,17 +153,14 @@ router.delete('/eliminar/:id',async(req,res)=>{
 
 });
 
-// Cerrar manualmente una oferta 
+// Cerrar manualmente la subasta
 router.put('/close_auction/:id', async(req,res)=>{
     try{
         const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
         let auction = await Auction.findById(req.params.id)
         if(auction.user != userId) return res.status(400).send('The auction is not yours.')
-        auction.status = "Cerrada"       
-        let validations = await validation(auction,req.params.id)
-        if(!validations[0]){
-            return res.status(200).send({success:false,message:validations.slice(1)})
-        }
+        auction.status = "cerrada"       
+        
         const auctionSaved  = await auction.findByIdAndUpdate(req.params.id,{        
             auctionValue:req.body.auctionValue,           
         },{

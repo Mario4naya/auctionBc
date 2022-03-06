@@ -81,6 +81,11 @@ router.post('/create', async(req,res)=>{
         let offerSaved = await offer.save();
     
         if(!offerSaved) return res.status(404).send('The offer cannot be created!')
+
+        await Auction.findByIdAndUpdate(offerSaved.auction,{
+            endPrice:offerSaved.offerValue
+        });
+
         res.send(offerSaved);
     }catch(e){
         let messages = [];
@@ -112,7 +117,12 @@ router.put('/:id', async(req,res)=>{
         },{
             new:true
         })
+
         if(!offerSaved) return res.status(404).send('The offer cannot be created!')
+
+        await Auction.findByIdAndUpdate(offerSaved.auction,{
+            endPrice:offerSaved.offerValue
+        });
         res.send(offerSaved);
     }catch(e){
         let messages = [];
@@ -173,7 +183,7 @@ const validation = async  function(offer,offerId){
     }
   
 
-    if((auction.endDate < (offer.offerDate ?? Date.now())) || auction.status == "closed"){
+    if((auction.endDate < (offer.offerDate ?? Date.now())) || auction.status == "cerrada"){
         validations.push("La subasta ya no está disponible")
     }
   
