@@ -41,7 +41,8 @@ router.post('/login',async(req,res)=>{
         let token = jwt.sign(
             {
                 userId:user.id,
-                isAdmin:user.isAdmin  
+                isAdmin:user.isAdmin,
+                isVerified:user.isVerified
             },
             process.env.SECRET_KEY,
             {

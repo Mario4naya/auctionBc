@@ -4,6 +4,7 @@ const { Auction } = require('../models/auction');
 const {Offer} = require('../models/offer');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { User } = require('../models/user');
 
 
 /**
@@ -44,9 +45,12 @@ router.get('/offerById',async(req,res)=>{
  */
 router.post('/create', async(req,res)=>{ 
     try{
-        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
+        const payload = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        if(!payload.isVerified) return res.status(400).send('Verificación requerida.');
+    
         let offer = new Offer({
-            user: userId,
+            user: payload.userId,
             offerValue:req.body.offerValue,
             offerDate:Date.now(),
             auction :req.body.auction
@@ -75,6 +79,9 @@ router.post('/create', async(req,res)=>{
  */
 router.put('/:id', async(req,res)=>{
     try{
+        const isVerified = jwt.decode(req.headers.authorization.split(' ')[1]).isVerified
+        if(!isVerified) return res.status(400).send('Verificación requerida.');
+
         let offer = await Offer.findById(req.params.id)
         offer.offerValue = req.body.offerValue
         offer.offerDate = Date.now()
@@ -102,16 +109,26 @@ router.put('/:id', async(req,res)=>{
 
 router.delete('/:id',async(req,res)=>{
 
-    Offer.findByIdAndDelete(req.params.id).then(offer =>{
-        if(offer){
-            return res.status(200).json({success:true,message:'The offer was deleted.'});
-        }else{
-            return res.status(404).json({success:false,message:'The offer was not found'});
+    const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
+    
+    var offer = await Offer.findById(req.params.id)
+
+    if(offer && offer.user === userId){
+        Offer.findByIdAndDelete(req.params.id).then(offer =>{
+            if(offer){
+                return res.status(200).json({success:true,message:'The offer was deleted.'});
+            }else{
+                return res.status(404).json({success:false,message:'The offer was not found'});
+            }
         }
+        ).catch(e=>{
+                return res.status(400).json({success:false,error:e});
+        });
+    }else{
+        return res.status(404).json({success:false,message:'The offer was not found or the offer is not yours '});
     }
-    ).catch(e=>{
-        	return res.status(400).json({success:false,error:e});
-    });
+
+
 });
 
 
@@ -134,8 +151,8 @@ const validation = async  function(offer,offerId){
 
     const auction = await Auction.findById(offer.auction);
 
-    if(offer.offerValue < auction.startPrice){
-        validations.push("La subasta tiene como valor minimo para ofertar: " + auction.startPrice)        
+    if(offer.offerValue <= auction.startPrice){
+        validations.push("El valor minimo de la oferta debe ser mayor a:" + auction.startPrice)        
     }
   
 
