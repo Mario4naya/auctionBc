@@ -18,14 +18,22 @@ router.get('/all', async(req,res)=>{
 })
 
 
+
+
 router.get('/:id',async(req,res)=>{
-    //try{
-        const category  = await Category.findById(req.params.id);
-        if(!category) return res.status(404).send({message:'Category was not found.'});
-        return res.send(category);
-    //}catch(e){
-    //    return res.status(400).send(e);
-    //}
+    const categoryList = await Category.find();   
+    const category  = await Category.findById(req.params.id);
+    if(!category) return res.status(404).send({message:'Category was not found.'});
+    return res.send(category);
+    
+});
+
+router.get('/:name',async(req,res)=>{
+    
+    const category  = await Category.findById(req.params.id);
+    if(!category) return res.status(404).send({message:'Category was not found.'});
+    return res.send(category);
+
 });
 
 

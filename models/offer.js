@@ -17,7 +17,7 @@ const offerSchema = mongoose.Schema({
     },
     auction :{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Auction',
+        ref: 'Auction', 
         required: true
     }
 

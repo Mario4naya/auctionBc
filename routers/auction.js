@@ -6,26 +6,93 @@ const router = express.Router();
 require('dotenv/config');
 
 
-//buscar subasta por 1 categoría
-router.get('/auct_by_category', async(req,res) =>{
-    try{
-        const auction  = await Auction.findById(req.params.id).select('-passwordHash');
-        if(!auction) return res.status(404).send({message:'Auction was not found.'});
-        return res.send(user);
-    }catch(e){
-        return res.status(400).send(e);
-    }
-})
-
 //buscar todas las subastas
-router.get('/allauctions', async(req,res) =>{
-    const auctionList = await Auction.find().select('-passwordHash');
+router.get('/all/all_auctions',async(req,res)=>{
+    const auctionList = await Auction.find();
 
     if(!auctionList){
         res.status(500).json({success:false});
     }
     res.send(auctionList);
-})
+});
+
+//Buscar subasta por ID
+router.get('/:id',async(req,res)=>{
+    try{
+        const auction  = await Auction.findById(req.params.id).select('-passwordHash');
+        if(!auction) return res.status(404).send({message:'auction was not found.'});
+        return res.send(auction);
+    }catch(e){
+        let messages = [];
+        for (let error of  Object.keys(e.errors)){
+            messages.push(e.errors[error].message);
+        }
+        res.status(400).send({errors: messages});
+    }
+});
+
+//Buscar subasta por categoría
+router.get('/auction_Category/:category',async(req,res)=>{
+    try{    
+        const auctionList = await Auction.find();
+        var  aucts = [];
+
+        if(!auctionList){
+        res.status(500).json({success:false});
+        }    
+        
+        for(auct in auctionList)
+        {
+            try
+            {
+                if(auctionList[auct].category == req.params.category)
+                {
+                    aucts.push(auctionList[auct]);
+                } 
+            }catch{}                       
+        }
+        return res.send(aucts);
+    }catch(e){
+        let messages = [];
+        for (let error of  Object.keys(e.errors)){
+            messages.push(e.errors[error].message);
+        }
+        res.status(400).send({errors: messages});
+    }
+    
+});
+
+//Buscar subasta por nombre
+router.get('/auction_name/:name',async(req,res)=>{
+    try{    
+        const auctionList = await Auction.find();
+        var  aucts = [];
+
+        if(!auctionList){
+        res.status(500).json({success:false});
+        }    
+        
+        for(auct in auctionList)
+        {
+            try
+            {
+                if(auctionList[auct].product_name.includes(req.params.name))
+                {
+                    aucts.push(auctionList[auct]);
+                } 
+            }catch{}                       
+        }
+        return res.send(aucts);
+    }catch(e){
+        let messages = [];
+        for (let error of  Object.keys(e.errors)){
+            messages.push(e.errors[error].message);
+        }
+        res.status(400).send({errors: messages});
+    }
+    
+});
+
 
 //Crea subasta
 router.post('/create', async(req,res)=>{
@@ -59,5 +126,61 @@ router.post('/create', async(req,res)=>{
     }
  
 });
+
+
+//Eliminar una subasta por su ID
+router.delete('/eliminar/:id',async(req,res)=>{
+
+    //const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
+    
+    var auction = await Auction.findById(req.params.id)
+
+    if(auction && auction.user === userId){
+        auction.findByIdAndDelete(req.params.id).then(auction =>{
+            if(auction){
+                return res.status(200).json({success:true,message:'The auction was deleted.'});
+            }else{
+                return res.status(404).json({success:false,message:'The auction was not found'});
+            }
+        }
+        ).catch(e=>{
+                return res.status(400).json({success:false,error:e});
+        });
+    }else{
+        return res.status(404).json({success:false,message:'The auction was not found or the auction is not yours '});
+    }
+
+
+});
+
+// Cerrar manualmente una oferta 
+router.put('/close_auction/:id', async(req,res)=>{
+    try{
+        const isVerified = jwt.decode(req.headers.authorization.split(' ')[1]).isVerified
+        if(!isVerified) return res.status(400).send('Verificación requerida.');
+
+        let auction = await Auction.findById(req.params.id)
+        auction.status = "Cerrada"       
+        let validations = await validation(auction,req.params.id)
+        if(!validations[0]){
+            return res.status(200).send({success:false,message:validations.slice(1)})
+        }
+        const auctionSaved  = await auction.findByIdAndUpdate(req.params.id,{        
+            auctionValue:req.body.auctionValue,           
+        },{
+            new:true
+        })
+        if(!auctionSaved) return res.status(404).send('The auction cannot be created!')
+        res.send(auctionSaved);
+    }catch(e){
+        let messages = [];
+        for (let error of  Object.keys(e.errors)){
+            messages.push(e.errors[error].message);
+        }
+        res.status(400).send({errors: messages});
+    }
+});
+
+
 
 module.exports = router;

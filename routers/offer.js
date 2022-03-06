@@ -24,7 +24,6 @@ router.get('/allByAuction', async(req,res)=>{
 /**
  * Obtenemos una oferta por su id
  */
-
 router.get('/offerById',async(req,res)=>{
     try{
         const offer  = await Offer.findById(req.query.id).populate('auction');
@@ -53,7 +52,7 @@ router.post('/create', async(req,res)=>{
             user: payload.userId,
             offerValue:req.body.offerValue,
             offerDate:Date.now(),
-            auction :req.body.auction
+            auction:req.body.auction 
         });
         let validations = await validation(offer)
         if(!validations[0]){

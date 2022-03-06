@@ -12,7 +12,7 @@ const auctionSchema = mongoose.Schema({
         required: true
     },
     startPrice :{
-        type: mongoose.Types.Decimal128,
+        type: Number,
         required: true
     },
     status :{
@@ -40,7 +40,7 @@ const auctionSchema = mongoose.Schema({
     }]
     ,
     endPrice :{
-        type:mongoose.Types.Decimal128,        
+        type:Number,        
     },
 
     category :{
