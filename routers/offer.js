@@ -22,6 +22,25 @@ router.get('/allByAuction', async(req,res)=>{
 })
 
 /**
+ * get all offers by user id
+ *  */
+ router.get('/allByUser', async(req,res)=>{
+    const authorization = req.headers.authorization;
+    if(!authorization){
+        return res.status(200).send('Not user logged')
+    }
+    const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
+
+    const offerList = await  Offer.find({
+        user:userId
+    }).sort({offerValue:-1}).populate('auction','_id ')
+
+    if(!offerList) res.status(500).json({success:false})
+    res.send(offerList);
+
+})
+
+/**
  * Obtenemos una oferta por su id
  */
 router.get('/offerById',async(req,res)=>{
@@ -78,10 +97,9 @@ router.post('/create', async(req,res)=>{
  */
 router.put('/:id', async(req,res)=>{
     try{
-        const isVerified = jwt.decode(req.headers.authorization.split(' ')[1]).isVerified
-        if(!isVerified) return res.status(400).send('Verificación requerida.');
-
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
         let offer = await Offer.findById(req.params.id)
+        if(offer.user != userId) return res.status(400).send('The offer is not yours.')
         offer.offerValue = req.body.offerValue
         offer.offerDate = Date.now()
         let validations = await validation(offer,req.params.id)

@@ -17,10 +17,7 @@ function authJwt(){
                 {url: /\/subasta\/api\/auctions(.*)/ ,methods:['GET','OPTIONS']},
                 {url: /\/subasta\/api\/offers(.*)/ ,methods:['GET','OPTIONS']},
                 `${api}/users/login`,
-                `${api}/users/register`,    
-                `${api}/auctions/create`,         
-                `${api}/auctions/eliminar/:id`, 
-                `${api}/auctions/close_auction/:id'`,     
+                `${api}/users/register`
             ]
         }
     )

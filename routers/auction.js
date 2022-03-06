@@ -19,7 +19,7 @@ router.get('/all/all_auctions',async(req,res)=>{
 //Buscar subasta por ID
 router.get('/:id',async(req,res)=>{
     try{
-        const auction  = await Auction.findById(req.params.id).select('-passwordHash');
+        const auction  = await Auction.findById(req.params.id);
         if(!auction) return res.status(404).send({message:'auction was not found.'});
         return res.send(auction);
     }catch(e){
@@ -97,6 +97,7 @@ router.get('/auction_name/:name',async(req,res)=>{
 //Crea subasta
 router.post('/create', async(req,res)=>{
     try{
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
         let auction = new Auction({
             code: req.body.code,
             product_name:req.body.product_name,
@@ -109,7 +110,7 @@ router.post('/create', async(req,res)=>{
             images: '',            
             endPrice:req.body.endPrice,
             category:req.body.category,
-            user:req.body.user          
+            user:userId       
         });
     
         auction = await auction.save();
@@ -131,8 +132,7 @@ router.post('/create', async(req,res)=>{
 //Eliminar una subasta por su ID
 router.delete('/eliminar/:id',async(req,res)=>{
 
-    //const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
-    
+    const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
     var auction = await Auction.findById(req.params.id)
 
     if(auction && auction.user === userId){
@@ -156,10 +156,9 @@ router.delete('/eliminar/:id',async(req,res)=>{
 // Cerrar manualmente una oferta 
 router.put('/close_auction/:id', async(req,res)=>{
     try{
-        const isVerified = jwt.decode(req.headers.authorization.split(' ')[1]).isVerified
-        if(!isVerified) return res.status(400).send('Verificación requerida.');
-
+        const userId = jwt.decode(req.headers.authorization.split(' ')[1]).userId
         let auction = await Auction.findById(req.params.id)
+        if(auction.user != userId) return res.status(400).send('The auction is not yours.')
         auction.status = "Cerrada"       
         let validations = await validation(auction,req.params.id)
         if(!validations[0]){
@@ -170,7 +169,7 @@ router.put('/close_auction/:id', async(req,res)=>{
         },{
             new:true
         })
-        if(!auctionSaved) return res.status(404).send('The auction cannot be created!')
+        if(!auctionSaved) return res.status(404).send('The auction cannot be updated!')
         res.send(auctionSaved);
     }catch(e){
         let messages = [];
