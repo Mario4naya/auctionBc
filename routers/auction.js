@@ -2,8 +2,37 @@ const express = require('express');
 const errorHandler = require('../helpers/errorHandler');
 const {Auction} = require('../models/auction');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const router = express.Router();
+const multer = require('multer');
 require('dotenv/config');
+
+
+const FILE_TYPE_MAP ={
+    'image/png':'png',
+    'image/jpeg':'jpeg',
+    'image/jpg':'jpg',
+}
+
+
+const storage = multer.diskStorage({
+    destination:function(req,file,cb){
+        const isValid = FILE_TYPE_MAP[file.mimetype];
+        let uploadError = new Error('invalid image type');
+        if(isValid){
+            uploadError = null
+        }
+        cb(uploadError,'./public/uploads')
+    },
+    filename:function(req,file,cb){
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        const extension = FILE_TYPE_MAP[file.mimetype];
+        cb(null, file.fieldname + '-' + uniqueSuffix + "." + extension)
+    }
+})
+
+const upload = multer({storage:storage})
+
 
 
 //buscar todas las subastas
@@ -128,6 +157,37 @@ router.post('/create', async(req,res)=>{
  
 });
 
+router.put('/gallery/images/:auctionId',upload.array('images',10),async (req,res)=>{
+    if(!mongoose.isValidObjectId(req.params.auctionId)){
+        return res.status(400).send('Invalid auction id.');
+    }
+    const files = req.files;
+    let imagesPath = [];
+    const basePath = `${req.protocol}://${req.get('host')}${process.env.STATIC_FOLDER}` ;
+    if(files){
+        files.map(file=>{
+            imagesPath.push(`${basePath}${file.filename}`);
+            console.log(file.filename)
+        });
+    }
+
+    let updatedAuction = await Auction.findByIdAndUpdate(
+        req.params.auctionId,
+        {
+            profileImage:imagesPath[0],
+            images: imagesPath,
+        },
+        {
+            new:true
+        });
+
+    if(!updatedAuction)return res.status(500).send('The auction cannot be updated')
+
+    res.send(updatedAuction);
+
+});
+
+
 
 //Eliminar una subasta por su ID
 router.delete('/eliminar/:id',async(req,res)=>{
@@ -160,7 +220,7 @@ router.put('/close_auction/:id', async(req,res)=>{
         let auction = await Auction.findById(req.params.id)
         if(auction.user != userId) return res.status(400).send('The auction is not yours.')
         auction.status = "cerrada"       
-        
+
         const auctionSaved  = await auction.findByIdAndUpdate(req.params.id,{        
             auctionValue:req.body.auctionValue,           
         },{
