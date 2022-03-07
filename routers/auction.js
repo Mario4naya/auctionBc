@@ -105,7 +105,7 @@ router.get('/auction_name/:name',async(req,res)=>{
         {
             try
             {
-                if(auctionList[auct].product_name.includes(req.params.name))
+                if(auctionList[auct].product_name.toLowerCase().includes(req.params.name.toLowerCase()))
                 {
                     aucts.push(auctionList[auct]);
                 } 
